@@ -1,0 +1,37 @@
+
+// linear interpolation
+std::vector<TrajectoryPoint> generateLinearTrajectory(double t_start,
+                                                      double t_end,
+                                                      const std::array<double, 7>& q_start,
+                                                      const std::array<double, 7>& q_end) {
+  std::vector<TrajectoryPoint> trajectory;
+  double total_time = t_end - t_start;
+
+  double dt = 0.001;  // 1ms
+
+  for (double t = t_start; t <= t_end; t += dt) {
+    double alpha = (t - t_start) / total_time;  // 0~1
+    if (alpha > 1.0) {
+      alpha = 1.0;
+    }
+
+    // q(t), dq(t), ddq(t)
+    std::array<double, 7> q_ref{}, dq_ref{}, ddq_ref{};
+    for (int i = 0; i < 7; i++) {
+      q_ref[i] = q_start[i] + (q_end[i] - q_start[i]) * alpha;
+      // velocity = (q_end - q_start) / total_time
+      dq_ref[i] = (q_end[i] - q_start[i]) / total_time;
+      // accleration
+      ddq_ref[i] = 0.0; 
+    }
+
+    TrajectoryPoint point;
+    point.time = t;
+    point.q = q_ref;
+    point.dq = dq_ref;
+    point.ddq = ddq_ref;
+    trajectory.push_back(point);
+  }
+
+  return trajectory;
+}

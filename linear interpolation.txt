@@ -1,0 +1,33 @@
+﻿if (global_speed_factor <= 0.0 || global_speed_factor > 1.0) {
+std::cerr << "Error: global-speed-factor must be between 0.0 and 1.0!" << std::endl;
+return -1;
+}
+
+if (t_start <= 0.0 || t_end <= t_start) {
+std::cerr << "Error: t_start must be >0 and t_end > t_start" << std::endl;
+return -1;
+}
+
+struct TrajectoryPoint {
+double time;
+std::array<double, 7> q;
+};
+
+double dt = 0.01;
+double total_time = t_end - t_start;
+std::vector<TrajectoryPoint> trajectory;
+
+for (double t = t_start; t <= t_end; t += dt){
+double rt = (t - t_start) / total_time;
+if (rt > 1.0) rt = 1.0;
+std::array<double,7> q_current;
+for (int i = 0; i < 7; i++){
+q_current[i] = q_start_array[i] + (q_end_array[i] - q_start_array[i]) * rt;
+}
+trajectory.push_back({t, q_current});
+}
+if (trajectory.empty()) {
+std::cerr << "Error: No valid trajectory points provided!" << std::endl;
+return -1;
+}
+
